@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link href="./app.css" rel="stylesheet">
+    <title>node-auth-tokens example</title>
+  </head>
+
+  <body>
+    <h1>node-auth-tokens example</h1>
+
+    <input
+      id="username"
+      placeholder="Username" />
+
+    <input
+      id="password"
+      placeholder="Password" />
+
+    <button onclick="login()">Log in</button>
+
+    <button onclick="logout()">Log out</button>
+
+    <button onclick="refreshTokens()">Refresh tokens</button>
+
+    <button onclick="getProtectedData()">Get protected data</button>
+
+    <textarea id="log"></textarea>
+
+    <script src="./app.js" lang="javascript"></script>
+  </body>
+</html>
