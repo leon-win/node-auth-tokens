@@ -63,7 +63,7 @@ class AuthTokens {
   }
 
   generateTokens (userId) {
-    const exp = Date.now() + this.options.ACCESS_TOKEN_MAX_AGE * 1000
+    const exp = Date.now() + this.options.ACCESS_TOKEN_MAX_AGE
 
     const accessToken = JWE.encrypt(
       JWT.sign(
