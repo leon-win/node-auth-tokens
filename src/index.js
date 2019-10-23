@@ -91,11 +91,11 @@ class AuthTokens {
       cookies.accessTokenCookie = this.generateAccessTokenCookie(accessToken)
     }
 
-    if (accessToken) {
+    if (refreshToken) {
       cookies.refreshTokenCookie = this.generateRefreshTokenCookie(refreshToken)
     }
 
-    if (accessToken) {
+    if (csrfToken) {
       cookies.csrfTokenCookie = this.generateCsrfTokenCookie(csrfToken)
     }
 
