@@ -19,6 +19,7 @@
   "scripts": {
     "lint": "standard",
     "lint:fix": "standard --fix",
+    "test": "tap",
     "example": "node-dev ./example/server-node.js"
   },
   "dependencies": {
@@ -28,7 +29,9 @@
   "devDependencies": {
     "cookies": "^0.8.0",
     "node-dev": "^4.0.0",
-    "standard": "^14.3.1"
+    "rewiremock": "^3.13.9",
+    "standard": "^14.3.1",
+    "tap": "^14.7.2"
   },
   "repository": {
     "type": "git",
@@ -37,5 +40,12 @@
   "bugs": {
     "url": "https://github.com/leon-win/node-auth-tokens/issues"
   },
-  "homepage": "https://github.com/leon-win/node-auth-tokens#readme"
+  "homepage": "https://github.com/leon-win/node-auth-tokens#readme",
+  "tap": {
+    "comments": true,
+    "coverage-report": ["text", "html"],
+    "esm": false,
+    "jsx": false,
+    "ts": false
+  }
 }
