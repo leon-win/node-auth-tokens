@@ -1,7 +1,7 @@
 # node-auth-tokens
 
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg?style=flat-square)](https://standardjs.com)
-[![GitHub](https://img.shields.io/github/license/leon-win/node-auth-tokens?style=flat-square)](http://opensource.org/licenses/MIT)
+[![JavaScript Standard Style](https://img.shields.io/badge/code_style-standard-brightgreen.svg?style=flat-square)](https://standardjs.com)
+[![License: MIT](https://img.shields.io/github/license/leon-win/node-auth-tokens?style=flat-square)](http://opensource.org/licenses/MIT)
 
 Auth library for Node.js applications based on access and refresh tokens approach
 
