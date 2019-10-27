@@ -1,13 +1,12 @@
 {
-  "name": "node-auth-tokens",
+  "name": "auth-tokens",
   "version": "0.1.0",
   "description": "Auth library for Node.js applications based on access and refresh tokens approach",
   "keywords": [
-    "auth",
-    "token",
-    "access",
-    "refresh",
-    "csrf",
+    "auth token",
+    "access token",
+    "refresh token",
+    "csrf token",
     "redis"
   ],
   "author": "Leonid Vinogradov <win.leon@pm.me>",
@@ -15,7 +14,7 @@
   "engines": {
     "node": ">=9"
   },
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "lint": "standard",
     "lint:fix": "standard --fix",
@@ -31,7 +30,7 @@
     "node-dev": "^4.0.0",
     "rewiremock": "^3.13.9",
     "standard": "^14.3.1",
-    "tap": "^14.7.2"
+    "tap": "^14.8.2"
   },
   "repository": {
     "type": "git",
@@ -40,7 +39,7 @@
   "bugs": {
     "url": "https://github.com/leon-win/node-auth-tokens/issues"
   },
-  "homepage": "https://github.com/leon-win/node-auth-tokens#readme",
+  "homepage": "https://github.com/leon-win/node-auth-tokens",
   "tap": {
     "comments": true,
     "coverage-report": ["text", "html"],
