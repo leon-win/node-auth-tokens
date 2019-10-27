@@ -2,15 +2,11 @@ const tap = require('tap')
 const rewiremock = require('rewiremock/node')
 
 // require target module with mocked dependencies
-const AuthTokens = rewiremock.proxy('../src/index.js', () => ({
+const AuthTokens = rewiremock.proxy('./../src/index.js', () => ({
   jose: {
     JWK: {
       asKey ({ kty, use, k }) {
-        return {
-          kty,
-          use,
-          kid: k
-        }
+        return { kty, use, kid: k }
       }
     },
     JWT: {
@@ -198,12 +194,7 @@ tap.test('generateCookies()', (test) => {
       accessToken
     })
 
-    test.match(
-      cookies,
-      {
-        accessTokenCookie: []
-      }
-    )
+    test.match(cookies.accessTokenCookie, [])
     test.end()
   })
 
@@ -212,12 +203,7 @@ tap.test('generateCookies()', (test) => {
       refreshToken
     })
 
-    test.match(
-      cookies,
-      {
-        refreshTokenCookie: []
-      }
-    )
+    test.match(cookies.refreshTokenCookie, [])
     test.end()
   })
 
@@ -226,12 +212,7 @@ tap.test('generateCookies()', (test) => {
       csrfToken
     })
 
-    test.match(
-      cookies,
-      {
-        csrfTokenCookie: []
-      }
-    )
+    test.match(cookies.csrfTokenCookie, [])
     test.end()
   })
 
@@ -251,7 +232,6 @@ tap.test('verifyRefreshToken()', (test) => {
       },
       new Error('Refresh token not found')
     )
-
     test.end()
   })
 
@@ -262,7 +242,6 @@ tap.test('verifyRefreshToken()', (test) => {
       },
       new Error('Refresh token is invalid')
     )
-
     test.end()
   })
 
@@ -273,7 +252,6 @@ tap.test('verifyRefreshToken()', (test) => {
       },
       new Error('CSRF token is invalid')
     )
-
     test.end()
   })
 
