@@ -7,6 +7,7 @@ Auth library for Node.js applications based on access and refresh tokens approac
 
 ## To do list
 * Implement multi-device authorization
+* Incapsulate cookies management
 * Incapsulate ioredis client in RedisStorage
 * Add JSDoc comments
 * Add express-server example
