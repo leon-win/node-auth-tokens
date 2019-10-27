@@ -1,25 +1,22 @@
 const fs = require('fs')
 const http = require('http')
 const Cookies = require('cookies')
-const Redis = require('ioredis')
 
-const NodeAuthTokens = require('../src/index')
+const AuthTokens = require('../src/index')
 
 const USERS = {
   username1: 'password1',
   username2: 'password2'
 }
 
-const NODE_AUTH_OPTIONS = {
+const AUTH_OPTIONS = {
   ACCESS_TOKEN_NAME: 'ACCESS_TOKEN_NAME',
   REFRESH_TOKEN_NAME: 'REFRESH_TOKEN_NAME',
   CSRF_TOKEN_NAME: 'CSRF_TOKEN_NAME'
 }
 
-const redis = new Redis()
-const authTokens = new NodeAuthTokens({
-  ...NODE_AUTH_OPTIONS,
-  redis
+const authTokens = new AuthTokens({
+  ...AUTH_OPTIONS
 })
 
 const server = http
@@ -156,7 +153,7 @@ function processLogin (request, response, body) {
 
 function processLogout (request, response) {
   const cookies = new Cookies(request, response)
-  const accessToken = cookies.get(NODE_AUTH_OPTIONS.ACCESS_TOKEN_NAME)
+  const accessToken = cookies.get(AUTH_OPTIONS.ACCESS_TOKEN_NAME)
 
   try {
     const data = authTokens.verifyAccessToken(accessToken)
@@ -164,7 +161,7 @@ function processLogout (request, response) {
     authTokens.storage.deleteRefreshToken(data.userId)
 
     cookies.set(
-      NODE_AUTH_OPTIONS.ACCESS_TOKEN_NAME,
+      AUTH_OPTIONS.ACCESS_TOKEN_NAME,
       '',
       {
         expires: Date.now(1),
@@ -172,7 +169,7 @@ function processLogout (request, response) {
       }
     )
     cookies.set(
-      NODE_AUTH_OPTIONS.REFRESH_TOKEN_NAME,
+      AUTH_OPTIONS.REFRESH_TOKEN_NAME,
       '',
       {
         expires: Date.now(1),
@@ -180,14 +177,16 @@ function processLogout (request, response) {
       }
     )
     cookies.set(
-      NODE_AUTH_OPTIONS.CSRF_TOKEN_NAME,
+      AUTH_OPTIONS.CSRF_TOKEN_NAME,
       '',
       {
         expires: Date.now(1),
         maxAge: Date.now(1)
       }
     )
-  } catch {
+  } catch (error) {
+    console.error(error)
+
     responseUnauthorized(response)
   }
 
@@ -202,9 +201,9 @@ function processLogout (request, response) {
 
 function processRefresh (request, response, body) {
   const cookies = new Cookies(request, response)
-  const currentAccessToken = cookies.get(NODE_AUTH_OPTIONS.ACCESS_TOKEN_NAME)
-  const currentRefreshToken = cookies.get[NODE_AUTH_OPTIONS.REFRESH_TOKEN_NAME]
-  const currentCsrfToken = cookies.get[NODE_AUTH_OPTIONS.CSRF_TOKEN_NAME]
+  const currentAccessToken = cookies.get(AUTH_OPTIONS.ACCESS_TOKEN_NAME)
+  const currentRefreshToken = cookies.get(AUTH_OPTIONS.REFRESH_TOKEN_NAME)
+  const currentCsrfToken = cookies.get(AUTH_OPTIONS.CSRF_TOKEN_NAME)
 
   let accessTokenData
   let userId
@@ -213,7 +212,9 @@ function processRefresh (request, response, body) {
     accessTokenData = authTokens.verifyAccessToken(currentAccessToken)
     userId = accessTokenData.userId
     authTokens.verifyRefreshToken(userId, currentRefreshToken, currentCsrfToken)
-  } catch {
+  } catch (error) {
+    console.error(error)
+
     return responseUnauthorized(response)
   }
 
@@ -244,11 +245,13 @@ function processRefresh (request, response, body) {
 
 function processProtected (request, response, body) {
   const cookies = new Cookies(request, response)
-  const accessToken = cookies.get(NODE_AUTH_OPTIONS.ACCESS_TOKEN_NAME)
+  const accessToken = cookies.get(AUTH_OPTIONS.ACCESS_TOKEN_NAME)
 
   try {
     authTokens.verifyAccessToken(accessToken)
-  } catch {
+  } catch (error) {
+    console.error(error)
+
     return responseUnauthorized(response)
   }
 
