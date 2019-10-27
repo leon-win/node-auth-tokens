@@ -5,6 +5,22 @@
 
 Auth library for Node.js applications based on access and refresh tokens approach
 
+## Install
+```sh
+$ npm install auth-tokens
+```
+
+## Example
+To launch the [Node.js HTTP server based example](example/server-node.js), clone the repository, install dependencies and run the `example` command:
+```sh
+$ git clone https://github.com/leon-win/node-auth-tokens.git
+$ cd node-auth-tokens
+$ npm install
+$ npm run example
+```
+
+**Note:** example server uses memory storage (JavaScript array) and is not production ready.
+
 ## To do list
 * Implement multi-device authorization
 * Incapsulate cookies management
