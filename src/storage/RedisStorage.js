@@ -7,6 +7,10 @@ class RedisStorage {
       throw new Error('Redis client instanсe is required')
     }
 
+    if (!refreshTokenExpiresIn) {
+      throw new Error('refreshTokenExpiresIn param is required')
+    }
+
     this.redis = redisClientInstanсe
     this.refreshTokenExpiresIn = refreshTokenExpiresIn
   }
