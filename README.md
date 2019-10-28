@@ -19,16 +19,10 @@ $ npm install
 $ npm run example
 ```
 
-**Note:** example server uses memory storage (JavaScript array) and is not production ready.
+> **Note:** example server uses memory storage (JavaScript array) and **is not suitable for production**.
 
 ## To do list
-* Implement multi-device authorization
-* Incapsulate cookies management
-* Incapsulate ioredis client in RedisStorage
-* Add JSDoc comments
-* Add express-server example
-* Cover examples with unit tests
-
+List of planned works is in the [Development plan](https://github.com/leon-win/node-auth-tokens/projects/1).
 
 ## License
 
