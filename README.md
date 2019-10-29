@@ -1,5 +1,6 @@
 # node-auth-tokens
 
+[![Build Status](https://img.shields.io/travis/leon-win/node-auth-tokens?style=flat-square)](https://travis-ci.org/leon-win/node-auth-tokens)
 [![JavaScript Standard Style](https://img.shields.io/badge/code_style-standard-brightgreen.svg?style=flat-square)](https://standardjs.com)
 [![License: MIT](https://img.shields.io/github/license/leon-win/node-auth-tokens?style=flat-square)](http://opensource.org/licenses/MIT)
 
