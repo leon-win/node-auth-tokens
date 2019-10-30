@@ -1,6 +1,6 @@
 {
   "name": "auth-tokens",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Auth library for Node.js applications based on access and refresh tokens approach",
   "keywords": [
     "auth token",
