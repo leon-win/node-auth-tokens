@@ -2,5 +2,5 @@ language: node_js
 node_js:
   - lts/*
 script:
-  - test
-  - codecov
+  - npm run test
+  - npm run codecov
