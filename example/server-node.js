@@ -10,9 +10,9 @@ const USERS = {
 }
 
 const AUTH_OPTIONS = {
-  ACCESS_TOKEN_NAME: 'ACCESS_TOKEN_NAME',
-  REFRESH_TOKEN_NAME: 'REFRESH_TOKEN_NAME',
-  CSRF_TOKEN_NAME: 'CSRF_TOKEN_NAME'
+  accessTokenName: 'ACCESS_TOKEN_NAME',
+  refreshTokenName: 'REFRESH_TOKEN_NAME',
+  csrfTokenName: 'CSRF_TOKEN_NAME'
 }
 
 const authTokens = new AuthTokens({
@@ -153,7 +153,7 @@ function processLogin (request, response, body) {
 
 function processLogout (request, response) {
   const cookies = new Cookies(request, response)
-  const accessToken = cookies.get(AUTH_OPTIONS.ACCESS_TOKEN_NAME)
+  const accessToken = cookies.get(AUTH_OPTIONS.accessTokenName)
 
   try {
     const data = authTokens.verifyAccessToken(accessToken)
@@ -161,7 +161,7 @@ function processLogout (request, response) {
     authTokens.storage.deleteRefreshToken(data.userId)
 
     cookies.set(
-      AUTH_OPTIONS.ACCESS_TOKEN_NAME,
+      AUTH_OPTIONS.accessTokenName,
       '',
       {
         expires: Date.now(1),
@@ -169,7 +169,7 @@ function processLogout (request, response) {
       }
     )
     cookies.set(
-      AUTH_OPTIONS.REFRESH_TOKEN_NAME,
+      AUTH_OPTIONS.refreshTokenName,
       '',
       {
         expires: Date.now(1),
@@ -177,7 +177,7 @@ function processLogout (request, response) {
       }
     )
     cookies.set(
-      AUTH_OPTIONS.CSRF_TOKEN_NAME,
+      AUTH_OPTIONS.csrfTokenName,
       '',
       {
         expires: Date.now(1),
@@ -201,9 +201,9 @@ function processLogout (request, response) {
 
 function processRefresh (request, response, body) {
   const cookies = new Cookies(request, response)
-  const currentAccessToken = cookies.get(AUTH_OPTIONS.ACCESS_TOKEN_NAME)
-  const currentRefreshToken = cookies.get(AUTH_OPTIONS.REFRESH_TOKEN_NAME)
-  const currentCsrfToken = cookies.get(AUTH_OPTIONS.CSRF_TOKEN_NAME)
+  const currentAccessToken = cookies.get(AUTH_OPTIONS.accessTokenName)
+  const currentRefreshToken = cookies.get(AUTH_OPTIONS.refreshTokenName)
+  const currentCsrfToken = cookies.get(AUTH_OPTIONS.csrfTokenName)
 
   let accessTokenData
   let userId
@@ -245,7 +245,7 @@ function processRefresh (request, response, body) {
 
 function processProtected (request, response, body) {
   const cookies = new Cookies(request, response)
-  const accessToken = cookies.get(AUTH_OPTIONS.ACCESS_TOKEN_NAME)
+  const accessToken = cookies.get(AUTH_OPTIONS.accessTokenName)
 
   try {
     authTokens.verifyAccessToken(accessToken)

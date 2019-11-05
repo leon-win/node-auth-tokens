@@ -5,7 +5,7 @@ const MemoryStorage = require('./storage/MemoryStorage')
 const RedisStorage = require('./storage/RedisStorage')
 
 const DEFAULT_OPTIONS = {
-  COOKIE_OPTIONS: {
+  cookieOptions: {
     domain: 'localhost',
     httpOnly: true,
     path: '/',
@@ -13,18 +13,18 @@ const DEFAULT_OPTIONS = {
     secure: false
   },
 
-  RANDOM_BYTES_SIZE: 64,
+  randomBytesSize: 64,
 
-  SIGN_SECRET: 'SIGN_SECRET',
-  ENCODE_SECRET: 'ENCODE_SECRET',
+  signSecret: 'SIGN_SECRET',
+  encodeSecret: 'ENCODE_SECRET',
 
-  ACCESS_TOKEN_NAME: 'ACCESS_TOKEN_NAME',
-  REFRESH_TOKEN_NAME: 'REFRESH_TOKEN_NAME',
-  CSRF_TOKEN_NAME: 'CSRF_TOKEN_NAME',
+  accessTokenName: 'ACCESS_TOKEN_NAME',
+  refreshTokenName: 'REFRESH_TOKEN_NAME',
+  csrfTokenName: 'CSRF_TOKEN_NAME',
 
-  ACCESS_TOKEN_MAX_AGE: 5 * 60 * 1000, // 5 minutes in ms
-  REFRESH_TOKEN_MAX_AGE: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
-  CSRF_TOKEN_MAX_AGE: 7 * 24 * 60 * 60 * 1000 // 7 days in ms
+  accessTokenMaxAge: 5 * 60 * 1000, // 5 minutes in ms
+  refreshTokenMaxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
+  csrfTokenMaxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in ms
 }
 
 const getRandomToken = (size) => {
@@ -43,7 +43,7 @@ class AuthTokens {
     if (options.redis) {
       this.storage = new RedisStorage(
         options.redis,
-        this.options.REFRESH_TOKEN_MAX_AGE / 1000
+        this.options.refreshTokenMaxAge / 1000
       )
     } else {
       this.storage = new MemoryStorage()
@@ -52,18 +52,18 @@ class AuthTokens {
     this.SIGN_KEY = JWK.asKey({
       kty: 'oct',
       use: 'sig',
-      k: this.options.SIGN_SECRET
+      k: this.options.signSecret
     })
 
     this.ENCODE_KEY = JWK.asKey({
       kty: 'oct',
       use: 'enc',
-      k: this.options.ENCODE_SECRET
+      k: this.options.encodeSecret
     })
   }
 
   generateTokens (userId) {
-    const exp = Date.now() + this.options.ACCESS_TOKEN_MAX_AGE
+    const exp = Date.now() + this.options.accessTokenMaxAge
 
     const accessToken = JWE.encrypt(
       JWT.sign(
@@ -79,8 +79,8 @@ class AuthTokens {
     return {
       accessToken,
       accessTokenExpiresIn: exp,
-      refreshToken: getRandomToken(this.options.RANDOM_BYTES_SIZE),
-      csrfToken: getRandomToken(this.options.RANDOM_BYTES_SIZE)
+      refreshToken: getRandomToken(this.options.randomBytesSize),
+      csrfToken: getRandomToken(this.options.randomBytesSize)
     }
   }
 
@@ -104,33 +104,33 @@ class AuthTokens {
 
   generateAccessTokenCookie (accessToken) {
     return [
-      this.options.ACCESS_TOKEN_NAME,
+      this.options.accessTokenName,
       accessToken,
       {
-        ...this.options.COOKIE_OPTIONS,
-        maxAge: this.options.ACCESS_TOKEN_MAX_AGE
+        ...this.options.cookieOptions,
+        maxAge: this.options.accessTokenMaxAge
       }
     ]
   }
 
   generateRefreshTokenCookie (refreshToken) {
     return [
-      this.options.REFRESH_TOKEN_NAME,
+      this.options.refreshTokenName,
       refreshToken,
       {
-        ...this.options.COOKIE_OPTIONS,
-        maxAge: this.options.REFRESH_TOKEN_MAX_AGE
+        ...this.options.cookieOptions,
+        maxAge: this.options.refreshTokenMaxAge
       }
     ]
   }
 
   generateCsrfTokenCookie (csrfToken) {
     return [
-      this.options.CSRF_TOKEN_NAME,
+      this.options.csrfTokenName,
       csrfToken,
       {
-        ...this.options.COOKIE_OPTIONS,
-        maxAge: this.options.CSRF_TOKEN_MAX_AGE
+        ...this.options.cookieOptions,
+        maxAge: this.options.csrfTokenMaxAge
       }
     ]
   }

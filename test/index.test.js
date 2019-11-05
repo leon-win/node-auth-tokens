@@ -52,9 +52,9 @@ const AuthTokens = rewiremock.proxy('./../src/index.js', () => ({
 }))
 
 const AUTH_TOKENS_OPTIONS = {
-  ACCESS_TOKEN_NAME: 'access_token_name',
-  REFRESH_TOKEN_NAME: 'refresh_token_name',
-  CSRF_TOKEN_NAME: 'csrf_token_name'
+  accessTokenName: 'access_token_name',
+  refreshTokenName: 'refresh_token_name',
+  csrfTokenName: 'csrf_token_name'
 }
 
 tap.test('AuthTokens instance with default options', (test) => {
@@ -136,7 +136,7 @@ tap.test('generateAccessTokenCookie()', (test) => {
   test.match(
     accessTokenCookie,
     [
-      AUTH_TOKENS_OPTIONS.ACCESS_TOKEN_NAME,
+      AUTH_TOKENS_OPTIONS.accessTokenName,
       accessToken,
       {}
     ]
@@ -155,7 +155,7 @@ tap.test('generateRefreshTokenCookie()', (test) => {
   test.match(
     refreshTokenCookie,
     [
-      AUTH_TOKENS_OPTIONS.REFRESH_TOKEN_NAME,
+      AUTH_TOKENS_OPTIONS.refreshTokenName,
       refreshToken,
       {}
     ]
@@ -174,7 +174,7 @@ tap.test('generateCsrfTokenCookie()', (test) => {
   test.match(
     csrfTokenCookie,
     [
-      AUTH_TOKENS_OPTIONS.CSRF_TOKEN_NAME,
+      AUTH_TOKENS_OPTIONS.csrfTokenName,
       csrfToken,
       {}
     ]
