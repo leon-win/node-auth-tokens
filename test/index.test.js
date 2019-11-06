@@ -36,13 +36,15 @@ const AuthTokens = rewiremock.proxy('./../src/index.js', () => ({
     getRefreshToken (userId) {
       const users = {
         123456789: {
-          refreshToken: 'refreshToken',
+          refreshToken: 'refreshTokenValue',
           csrfToken: 'csrfToken'
         }
       }
 
       return users[userId]
     }
+
+    setRefreshToken () {}
   },
   './../src/storage/RedisStorage': class RedisStorage {
     constructor () {
@@ -65,8 +67,8 @@ tap.test('AuthTokens instance with default options', (test) => {
     {
       options: {},
       storage: {},
-      SIGN_KEY: {},
-      ENCODE_KEY: {}
+      signKey: {},
+      encodeKey: {}
     }
   )
   test.end()
@@ -82,8 +84,8 @@ tap.test('AuthTokens instance with MemoryStorage', (test) => {
       storage: {
         usersTokenList: {}
       },
-      SIGN_KEY: {},
-      ENCODE_KEY: {}
+      signKey: {},
+      encodeKey: {}
     }
   )
   test.end()
@@ -101,27 +103,25 @@ tap.test('AuthTokens instance with RedisStorage', (test) => {
       storage: {
         redis: {}
       },
-      SIGN_KEY: {},
-      ENCODE_KEY: {}
+      signKey: {},
+      encodeKey: {}
     }
   )
   test.end()
 })
 
-tap.test('generateTokens()', (test) => {
+tap.test('setTokens()', (test) => {
   const authTokens = new AuthTokens()
 
   const {
     accessToken,
     accessTokenExpiresIn,
-    refreshToken,
-    csrfToken
-  } = authTokens.generateTokens(123456789)
+    refreshToken
+  } = authTokens.setTokens(123456789)
 
   test.type(accessToken, 'string')
   test.type(accessTokenExpiresIn, 'number')
   test.type(refreshToken, 'string')
-  test.type(csrfToken, 'string')
   test.end()
 })
 
@@ -163,31 +163,11 @@ tap.test('generateRefreshTokenCookie()', (test) => {
   test.end()
 })
 
-tap.test('generateCsrfTokenCookie()', (test) => {
-  const authTokens = new AuthTokens({
-    ...AUTH_TOKENS_OPTIONS
-  })
-
-  const csrfToken = 'csrfToken'
-  const csrfTokenCookie = authTokens.generateCsrfTokenCookie(csrfToken)
-
-  test.match(
-    csrfTokenCookie,
-    [
-      AUTH_TOKENS_OPTIONS.csrfTokenName,
-      csrfToken,
-      {}
-    ]
-  )
-  test.end()
-})
-
 tap.test('generateCookies()', (test) => {
   const authTokens = new AuthTokens()
 
   const accessToken = 'accessToken'
   const refreshToken = 'refreshToken'
-  const csrfToken = 'csrfToken'
 
   test.test('accessToken cookie generated', test => {
     const cookies = authTokens.generateCookies({
@@ -207,28 +187,69 @@ tap.test('generateCookies()', (test) => {
     test.end()
   })
 
-  test.test('csrfToken cookie generated', test => {
-    const cookies = authTokens.generateCookies({
-      csrfToken
-    })
+  test.end()
+})
 
-    test.match(cookies.csrfTokenCookie, [])
-    test.end()
-  })
+tap.test('verifyAccessToken()', (test) => {
+  const authTokens = new AuthTokens()
 
+  const accessToken = 'accessToken'
+
+  const accessTokenData = authTokens.verifyAccessToken(accessToken)
+
+  test.match(
+    accessTokenData,
+    {
+      userId: 123456789
+    }
+  )
   test.end()
 })
 
 tap.test('verifyRefreshToken()', (test) => {
   const authTokens = new AuthTokens()
 
-  const refreshToken = 'refreshToken'
-  const csrfToken = 'csrfToken'
+  const obsoleteRrefreshToken = 'obsoleteRrefreshToken'
+  const invalidRefreshToken = 'invalidRefreshToken'
+  const refreshTokenWithInvalidCsrf = 'refreshTokenWithInvalidCsrf'
+  const validRefreshToken = 'validRefreshToken'
+
+  // mock authTokens.verifyToken() method
+  authTokens.verifyToken = (token) => {
+    if (token === obsoleteRrefreshToken) {
+      return {
+        userId: 987654321
+      }
+    }
+
+    if (token === invalidRefreshToken) {
+      return {
+        userId: 123456789,
+        value: 'invalidRefreshTokenValue'
+      }
+    }
+
+    if (token === refreshTokenWithInvalidCsrf) {
+      return {
+        userId: 123456789,
+        value: 'refreshTokenValue',
+        csrfToken: 'invalidCsrfToken'
+      }
+    }
+
+    if (token === validRefreshToken) {
+      return {
+        userId: 123456789,
+        value: 'refreshTokenValue',
+        csrfToken: 'csrfToken'
+      }
+    }
+  }
 
   test.test('Refresh token not found', test => {
     test.throws(
       () => {
-        authTokens.verifyRefreshToken(987654321)
+        authTokens.verifyRefreshToken(obsoleteRrefreshToken)
       },
       new Error('Refresh token not found')
     )
@@ -238,7 +259,7 @@ tap.test('verifyRefreshToken()', (test) => {
   test.test('Refresh token is invalid', test => {
     test.throws(
       () => {
-        authTokens.verifyRefreshToken(123456789, 'invalidRefreshToken')
+        authTokens.verifyRefreshToken(invalidRefreshToken)
       },
       new Error('Refresh token is invalid')
     )
@@ -248,7 +269,7 @@ tap.test('verifyRefreshToken()', (test) => {
   test.test('CSRF token is invalid', test => {
     test.throws(
       () => {
-        authTokens.verifyRefreshToken(123456789, refreshToken, 'invalidCsrfToken')
+        authTokens.verifyRefreshToken(refreshTokenWithInvalidCsrf)
       },
       new Error('CSRF token is invalid')
     )
@@ -256,31 +277,12 @@ tap.test('verifyRefreshToken()', (test) => {
   })
 
   test.test('Refresh token is valid', test => {
-    const isValidRefresToken = authTokens.verifyRefreshToken(
-      123456789,
-      refreshToken,
-      csrfToken
+    test.match(
+      authTokens.verifyRefreshToken(validRefreshToken),
+      authTokens.verifyToken(validRefreshToken)
     )
-
-    test.equal(isValidRefresToken, true)
     test.end()
   })
 
-  test.end()
-})
-
-tap.test('verifyAccessToken()', (test) => {
-  const authTokens = new AuthTokens()
-
-  const accessToken = 'accessToken'
-
-  const validatedAccessToken = authTokens.verifyAccessToken(accessToken)
-
-  test.match(
-    validatedAccessToken,
-    {
-      userId: 123456789
-    }
-  )
   test.end()
 })
