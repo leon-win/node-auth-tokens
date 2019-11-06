@@ -19,7 +19,7 @@
     "lint:fix": "standard --fix",
     "test": "tap",
     "example": "node-dev ./example/server-node.js",
-    "codecov": "tap --coverage-report=text-lcov | codecov"
+    "codecov": "tap | tap --coverage-report=text-lcov | codecov"
   },
   "dependencies": {
     "jose": "^1.12.0"
