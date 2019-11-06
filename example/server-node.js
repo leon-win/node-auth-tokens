@@ -11,8 +11,7 @@ const USERS = {
 
 const AUTH_OPTIONS = {
   accessTokenName: 'ACCESS_TOKEN_NAME',
-  refreshTokenName: 'REFRESH_TOKEN_NAME',
-  csrfTokenName: 'CSRF_TOKEN_NAME'
+  refreshTokenName: 'REFRESH_TOKEN_NAME'
 }
 
 const authTokens = new AuthTokens({
@@ -114,30 +113,19 @@ function processLogin (request, response, body) {
     const {
       accessToken,
       accessTokenExpiresIn,
-      refreshToken,
-      csrfToken
-    } = authTokens.generateTokens(username)
-
-    authTokens.storage.setRefreshToken(
-      username,
-      refreshToken,
-      csrfToken
-    )
-
+      refreshToken
+    } = authTokens.setTokens(username)
     const {
       accessTokenCookie,
-      refreshTokenCookie,
-      csrfTokenCookie
+      refreshTokenCookie
     } = authTokens.generateCookies({
       accessToken,
-      refreshToken,
-      csrfToken
+      refreshToken
     })
-    const cookies = new Cookies(request, response)
 
+    const cookies = new Cookies(request, response)
     cookies.set(...accessTokenCookie)
     cookies.set(...refreshTokenCookie)
-    cookies.set(...csrfTokenCookie)
 
     responseWithBody(
       response,
@@ -146,93 +134,64 @@ function processLogin (request, response, body) {
         accessTokenExpiresIn
       }
     )
-  } else {
-    responseUnauthorized(response)
+    return
   }
+
+  responseUnauthorized(response)
 }
 
 function processLogout (request, response) {
   const cookies = new Cookies(request, response)
-  const accessToken = cookies.get(AUTH_OPTIONS.accessTokenName)
+  const refreshToken = cookies.get(AUTH_OPTIONS.refreshTokenName)
 
-  try {
-    const data = authTokens.verifyAccessToken(accessToken)
+  if (authTokens.deleteRefreshToken(refreshToken)) {
+    cookies.set(AUTH_OPTIONS.accessTokenName)
+    cookies.set(AUTH_OPTIONS.refreshTokenName)
 
-    authTokens.storage.deleteRefreshToken(data.userId)
-
-    cookies.set(
-      AUTH_OPTIONS.accessTokenName,
-      '',
+    responseWithBody(
+      response,
       {
-        expires: Date.now(1),
-        maxAge: Date.now(1)
+        message: 'Logged out',
+        accessTokenExpiresIn: null
       }
     )
-    cookies.set(
-      AUTH_OPTIONS.refreshTokenName,
-      '',
-      {
-        expires: Date.now(1),
-        maxAge: Date.now(1)
-      }
-    )
-    cookies.set(
-      AUTH_OPTIONS.csrfTokenName,
-      '',
-      {
-        expires: Date.now(1),
-        maxAge: Date.now(1)
-      }
-    )
-  } catch (error) {
-    console.error(error)
-
-    responseUnauthorized(response)
+    return
   }
 
-  responseWithBody(
-    response,
-    {
-      message: 'Logged out',
-      accessTokenExpiresIn: null
-    }
-  )
+  responseUnauthorized(response)
 }
 
 function processRefresh (request, response, body) {
   const cookies = new Cookies(request, response)
-  const currentAccessToken = cookies.get(AUTH_OPTIONS.accessTokenName)
   const currentRefreshToken = cookies.get(AUTH_OPTIONS.refreshTokenName)
-  const currentCsrfToken = cookies.get(AUTH_OPTIONS.csrfTokenName)
 
-  let accessTokenData
-  let userId
+  let accessToken
+  let accessTokenExpiresIn
+  let refreshToken
 
   try {
-    accessTokenData = authTokens.verifyAccessToken(currentAccessToken)
-    userId = accessTokenData.userId
-    authTokens.verifyRefreshToken(userId, currentRefreshToken, currentCsrfToken)
+    ({
+      accessToken,
+      accessTokenExpiresIn,
+      refreshToken
+    } = authTokens.refreshTokens(currentRefreshToken))
   } catch (error) {
     console.error(error)
 
-    return responseUnauthorized(response)
+    responseUnauthorized(response)
+    return
   }
 
   const {
-    accessToken,
-    accessTokenExpiresIn,
-    csrfToken
-  } = authTokens.generateTokens(userId)
-
-  const {
     accessTokenCookie,
-    csrfTokenCookie
-  } = authTokens.generateCookies({ accessToken, csrfToken })
-
-  authTokens.storage.updateCsrfToken(userId, csrfToken)
+    refreshTokenCookie
+  } = authTokens.generateCookies({
+    accessToken,
+    refreshToken
+  })
 
   cookies.set(...accessTokenCookie)
-  cookies.set(...csrfTokenCookie)
+  cookies.set(...refreshTokenCookie)
 
   responseWithBody(
     response,
@@ -252,7 +211,8 @@ function processProtected (request, response, body) {
   } catch (error) {
     console.error(error)
 
-    return responseUnauthorized(response)
+    responseUnauthorized(response)
+    return
   }
 
   responseWithBody(

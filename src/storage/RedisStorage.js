@@ -19,10 +19,18 @@ class RedisStorage {
     return this.redis.hgetall(`tokens:${userId}`)
   }
 
-  setRefreshToken (userId, refreshToken, csrfToken) {
+  setRefreshToken (userId, refreshTokenValue, csrfToken) {
     return this.redis.multi()
-      .hmset(`tokens:${userId}`, { refreshToken, csrfToken })
-      .expire(`tokens:${userId}`, this.refreshTokenExpiresIn)
+      .hmset(
+        `tokens:${userId}`,
+        {
+          refreshToken: refreshTokenValue,
+          csrfToken
+        })
+      .expire(
+        `tokens:${userId}`,
+        this.refreshTokenExpiresIn
+      )
       .exec()
   }
 
@@ -31,7 +39,11 @@ class RedisStorage {
   }
 
   updateCsrfToken (userId, csrfToken) {
-    return this.redis.hset(`tokens:${userId}`, 'csrfToken', csrfToken)
+    return this.redis.hset(
+      `tokens:${userId}`,
+      'csrfToken',
+      csrfToken
+    )
   }
 }
 

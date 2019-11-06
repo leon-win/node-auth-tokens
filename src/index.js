@@ -27,42 +27,99 @@ class AuthTokens {
       this.storage = new MemoryStorage()
     }
 
-    this.SIGN_KEY = JWK.asKey({
+    this.signKey = JWK.asKey({
       kty: 'oct',
       use: 'sig',
       k: this.options.signSecret
     })
 
-    this.ENCODE_KEY = JWK.asKey({
+    this.encodeKey = JWK.asKey({
       kty: 'oct',
       use: 'enc',
       k: this.options.encodeSecret
     })
   }
 
-  generateTokens (userId) {
-    const exp = Date.now() + this.options.accessTokenMaxAge
+  setTokens (userId) {
+    const accessTokenExpiresIn = Date.now() + this.options.accessTokenMaxAge
+    const csrfToken = getRandomToken(this.options.randomBytesSize)
+    const refreshTokenValue = getRandomToken(this.options.randomBytesSize)
 
     const accessToken = JWE.encrypt(
       JWT.sign(
         {
           userId,
-          exp
+          exp: accessTokenExpiresIn
         },
-        this.SIGN_KEY
+        this.signKey
       ),
-      this.ENCODE_KEY
+      this.encodeKey
+    )
+    const refreshToken = JWE.encrypt(
+      JWT.sign(
+        {
+          userId,
+          value: refreshTokenValue,
+          csrfToken
+        },
+        this.signKey
+      ),
+      this.encodeKey
+    )
+
+    this.storage.setRefreshToken(
+      userId,
+      refreshTokenValue,
+      csrfToken
     )
 
     return {
       accessToken,
-      accessTokenExpiresIn: exp,
-      refreshToken: getRandomToken(this.options.randomBytesSize),
-      csrfToken: getRandomToken(this.options.randomBytesSize)
+      accessTokenExpiresIn,
+      refreshToken
     }
   }
 
-  generateCookies ({ accessToken, refreshToken, csrfToken }) {
+  refreshTokens (currentRefreshToken) {
+    const refreshTokenData = this.verifyRefreshToken(currentRefreshToken)
+    const accessTokenExpiresIn = Date.now() + this.options.accessTokenMaxAge
+    const csrfToken = getRandomToken(this.options.randomBytesSize)
+
+    const accessToken = JWE.encrypt(
+      JWT.sign(
+        {
+          userId: refreshTokenData.userId,
+          exp: accessTokenExpiresIn
+        },
+        this.signKey
+      ),
+      this.encodeKey
+    )
+    const refreshToken = JWE.encrypt(
+      JWT.sign(
+        {
+          userId: refreshTokenData.userId,
+          value: refreshTokenData.value,
+          csrfToken
+        },
+        this.signKey
+      ),
+      this.encodeKey
+    )
+
+    this.storage.updateCsrfToken(
+      refreshTokenData.userId,
+      csrfToken
+    )
+
+    return {
+      accessToken,
+      accessTokenExpiresIn,
+      refreshToken
+    }
+  }
+
+  generateCookies ({ accessToken, refreshToken }) {
     const cookies = {}
 
     if (accessToken) {
@@ -71,10 +128,6 @@ class AuthTokens {
 
     if (refreshToken) {
       cookies.refreshTokenCookie = this.generateRefreshTokenCookie(refreshToken)
-    }
-
-    if (csrfToken) {
-      cookies.csrfTokenCookie = this.generateCsrfTokenCookie(csrfToken)
     }
 
     return cookies
@@ -102,45 +155,45 @@ class AuthTokens {
     ]
   }
 
-  generateCsrfTokenCookie (csrfToken) {
-    return [
-      this.options.csrfTokenName,
-      csrfToken,
-      {
-        ...this.options.cookieOptions,
-        maxAge: this.options.csrfTokenMaxAge
-      }
-    ]
-  }
-
-  verifyRefreshToken (userId, refreshToken, csrfToken) {
-    const savedToken = this.storage.getRefreshToken(userId)
-
-    if (!savedToken) {
-      throw new Error('Refresh token not found')
-    }
-
-    if (savedToken.refreshToken !== refreshToken) {
-      throw new Error('Refresh token is invalid')
-    }
-
-    if (savedToken.csrfToken !== csrfToken) {
-      throw new Error('CSRF token is invalid')
-    }
-
-    return true
-  }
-
-  verifyAccessToken (accessToken) {
-    const decryptedAccessToken = JWE.decrypt(
-      accessToken,
-      this.ENCODE_KEY
+  verifyToken (token) {
+    const decryptedToken = JWE.decrypt(
+      token,
+      this.encodeKey
     )
 
     return JWT.verify(
-      decryptedAccessToken.toString(),
-      this.SIGN_KEY
+      decryptedToken.toString(),
+      this.signKey
     )
+  }
+
+  verifyAccessToken (accessToken) {
+    return this.verifyToken(accessToken)
+  }
+
+  verifyRefreshToken (refreshToken) {
+    const refreshTokenData = this.verifyToken(refreshToken)
+    const savedRefreshToken = this.storage.getRefreshToken(refreshTokenData.userId)
+
+    if (!savedRefreshToken) {
+      throw new Error('Refresh token not found')
+    }
+
+    if (savedRefreshToken.refreshToken !== refreshTokenData.value) {
+      throw new Error('Refresh token is invalid')
+    }
+
+    if (savedRefreshToken.csrfToken !== refreshTokenData.csrfToken) {
+      throw new Error('CSRF token is invalid')
+    }
+
+    return refreshTokenData
+  }
+
+  deleteRefreshToken (refreshToken) {
+    const refreshTokenData = this.verifyToken(refreshToken)
+
+    return this.storage.deleteRefreshToken(refreshTokenData.userId)
   }
 }
 

@@ -7,9 +7,9 @@ class MemoryStorage {
     return this.usersTokenList[userId]
   }
 
-  setRefreshToken (userId, refreshToken, csrfToken) {
+  setRefreshToken (userId, refreshTokenValue, csrfToken) {
     this.usersTokenList[userId] = {
-      refreshToken,
+      refreshToken: refreshTokenValue,
       csrfToken
     }
   }

@@ -1,12 +1,13 @@
 {
   "name": "auth-tokens",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Auth library for Node.js applications based on access and refresh tokens approach",
   "keywords": [
     "auth token",
     "access token",
     "refresh token",
-    "csrf token"
+    "csrf",
+    "jwt"
   ],
   "author": "Leonid Vinogradov <win.leon@pm.me>",
   "license": "MIT",
