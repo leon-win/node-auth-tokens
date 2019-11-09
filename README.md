@@ -14,7 +14,7 @@ $ npm install auth-tokens
 ```
 
 ## Example
-To launch the [Node.js HTTP server based example](example/server-node.js), clone the repository, install dependencies and run the `example` command:
+To launch the [Node.js HTTP server based example](example/server.js), clone the repository, install dependencies and run the `example` command:
 ```sh
 $ git clone https://github.com/leon-win/node-auth-tokens.git
 $ cd node-auth-tokens
