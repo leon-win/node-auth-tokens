@@ -119,42 +119,6 @@ class AuthTokens {
     }
   }
 
-  generateCookies ({ accessToken, refreshToken }) {
-    const cookies = {}
-
-    if (accessToken) {
-      cookies.accessTokenCookie = this.generateAccessTokenCookie(accessToken)
-    }
-
-    if (refreshToken) {
-      cookies.refreshTokenCookie = this.generateRefreshTokenCookie(refreshToken)
-    }
-
-    return cookies
-  }
-
-  generateAccessTokenCookie (accessToken) {
-    return [
-      this.options.accessTokenName,
-      accessToken,
-      {
-        ...this.options.cookieOptions,
-        maxAge: this.options.accessTokenMaxAge
-      }
-    ]
-  }
-
-  generateRefreshTokenCookie (refreshToken) {
-    return [
-      this.options.refreshTokenName,
-      refreshToken,
-      {
-        ...this.options.cookieOptions,
-        maxAge: this.options.refreshTokenMaxAge
-      }
-    ]
-  }
-
   verifyToken (token) {
     const decryptedToken = JWE.decrypt(
       token,

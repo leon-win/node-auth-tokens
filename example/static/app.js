@@ -44,7 +44,9 @@ window.login = () => {
       }
     })
     .then(data => {
-      window.sessionStorage.setItem('accessTokenExpiresIn', `${data.accessTokenExpiresIn}`)
+      if (data && data.accessTokenExpiresIn) {
+        window.sessionStorage.setItem('accessTokenExpiresIn', `${data.accessTokenExpiresIn}`)
+      }
     })
     .catch(error => {
       console.error('/api/login error:', error)
@@ -81,7 +83,9 @@ window.refreshTokens = () => {
       }
     })
     .then(data => {
-      window.sessionStorage.setItem('accessTokenExpiresIn', `${data.accessTokenExpiresIn}`)
+      if (data && data.accessTokenExpiresIn) {
+        window.sessionStorage.setItem('accessTokenExpiresIn', `${data.accessTokenExpiresIn}`)
+      }
     })
     .catch(error => {
       console.error('/api/refresh error:', error)

@@ -53,12 +53,6 @@ const AuthTokens = rewiremock.proxy('./../src/index.js', () => ({
   }
 }))
 
-const AUTH_TOKENS_OPTIONS = {
-  accessTokenName: 'access_token_name',
-  refreshTokenName: 'refresh_token_name',
-  csrfTokenName: 'csrf_token_name'
-}
-
 tap.test('AuthTokens instance with default options', (test) => {
   const authTokens = new AuthTokens()
 
@@ -122,71 +116,6 @@ tap.test('setTokens()', (test) => {
   test.type(accessToken, 'string')
   test.type(accessTokenExpiresIn, 'number')
   test.type(refreshToken, 'string')
-  test.end()
-})
-
-tap.test('generateAccessTokenCookie()', (test) => {
-  const authTokens = new AuthTokens({
-    ...AUTH_TOKENS_OPTIONS
-  })
-
-  const accessToken = 'accessToken'
-  const accessTokenCookie = authTokens.generateAccessTokenCookie(accessToken)
-
-  test.match(
-    accessTokenCookie,
-    [
-      AUTH_TOKENS_OPTIONS.accessTokenName,
-      accessToken,
-      {}
-    ]
-  )
-  test.end()
-})
-
-tap.test('generateRefreshTokenCookie()', (test) => {
-  const authTokens = new AuthTokens({
-    ...AUTH_TOKENS_OPTIONS
-  })
-
-  const refreshToken = 'refreshToken'
-  const refreshTokenCookie = authTokens.generateRefreshTokenCookie(refreshToken)
-
-  test.match(
-    refreshTokenCookie,
-    [
-      AUTH_TOKENS_OPTIONS.refreshTokenName,
-      refreshToken,
-      {}
-    ]
-  )
-  test.end()
-})
-
-tap.test('generateCookies()', (test) => {
-  const authTokens = new AuthTokens()
-
-  const accessToken = 'accessToken'
-  const refreshToken = 'refreshToken'
-
-  test.test('accessToken cookie generated', test => {
-    const cookies = authTokens.generateCookies({
-      accessToken
-    })
-
-    test.match(cookies.accessTokenCookie, [])
-    test.end()
-  })
-
-  test.test('refreshToken cookie generated', test => {
-    const cookies = authTokens.generateCookies({
-      refreshToken
-    })
-
-    test.match(cookies.refreshTokenCookie, [])
-    test.end()
-  })
-
   test.end()
 })
 

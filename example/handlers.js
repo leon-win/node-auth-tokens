@@ -1,18 +1,37 @@
 const Cookies = require('cookies')
-
 const AuthTokens = require('../src/index')
 
-const AUTH_OPTIONS = {
-  accessTokenName: 'ACCESS_TOKEN_NAME',
-  refreshTokenName: 'REFRESH_TOKEN_NAME'
+// Naive implementaion of database with users data
+const USERS = {
+  username1: 'password1',
+  username2: 'password2'
 }
+
+const ACCESS_TOKEN_NAME = 'ACCESS_TOKEN_NAME'
+const REFRESH_TOKEN_NAME = 'REFRESH_TOKEN_NAME'
+
+const AUTH_OPTIONS = {
+  accessTokenMaxAge: 5 * 60 * 1000, // 5 minutes in ms
+  refreshTokenMaxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in ms
+}
+
 const authTokens = new AuthTokens({
   ...AUTH_OPTIONS
 })
 
-const USERS = {
-  username1: 'password1',
-  username2: 'password2'
+function generateCookie (name, value, maxAge) {
+  return [
+    name,
+    value,
+    {
+      maxAge,
+      domain: 'localhost',
+      httpOnly: true,
+      path: '/',
+      sameSite: 'strict',
+      secure: false // it should be true in production
+    }
+  ]
 }
 
 function responseWithBody (response, body) {
@@ -28,21 +47,17 @@ function responseUnauthorized (response) {
 function processLogin (request, response, body) {
   const { username, password } = body
 
+  // There should be real authentication logic
   if (USERS[username] && USERS[username] === password) {
     const {
       accessToken,
       accessTokenExpiresIn,
       refreshToken
     } = authTokens.setTokens(username)
-    const {
-      accessTokenCookie,
-      refreshTokenCookie
-    } = authTokens.generateCookies({
-      accessToken,
-      refreshToken
-    })
 
     const cookies = new Cookies(request, response)
+    const accessTokenCookie = generateCookie(ACCESS_TOKEN_NAME, accessToken, AUTH_OPTIONS.accessTokenMaxAge)
+    const refreshTokenCookie = generateCookie(REFRESH_TOKEN_NAME, refreshToken, AUTH_OPTIONS.refreshTokenMaxAge)
     cookies.set(...accessTokenCookie)
     cookies.set(...refreshTokenCookie)
 
@@ -61,28 +76,31 @@ function processLogin (request, response, body) {
 
 function processLogout (request, response) {
   const cookies = new Cookies(request, response)
-  const refreshToken = cookies.get(AUTH_OPTIONS.refreshTokenName)
+  const refreshToken = cookies.get(REFRESH_TOKEN_NAME)
 
-  if (authTokens.deleteRefreshToken(refreshToken)) {
-    cookies.set(AUTH_OPTIONS.accessTokenName)
-    cookies.set(AUTH_OPTIONS.refreshTokenName)
-
-    responseWithBody(
-      response,
-      {
-        message: 'Logged out',
-        accessTokenExpiresIn: null
-      }
-    )
+  if (!refreshToken) {
+    responseUnauthorized(response)
     return
   }
 
-  responseUnauthorized(response)
+  authTokens.deleteRefreshToken(refreshToken)
+
+  // Clear cookies
+  cookies.set(ACCESS_TOKEN_NAME)
+  cookies.set(REFRESH_TOKEN_NAME)
+
+  responseWithBody(
+    response,
+    {
+      message: 'Logged out',
+      accessTokenExpiresIn: null
+    }
+  )
 }
 
 function processRefresh (request, response, body) {
   const cookies = new Cookies(request, response)
-  const currentRefreshToken = cookies.get(AUTH_OPTIONS.refreshTokenName)
+  const currentRefreshToken = cookies.get(REFRESH_TOKEN_NAME)
 
   let accessToken
   let accessTokenExpiresIn
@@ -101,14 +119,8 @@ function processRefresh (request, response, body) {
     return
   }
 
-  const {
-    accessTokenCookie,
-    refreshTokenCookie
-  } = authTokens.generateCookies({
-    accessToken,
-    refreshToken
-  })
-
+  const accessTokenCookie = generateCookie(ACCESS_TOKEN_NAME, accessToken, AUTH_OPTIONS.accessTokenMaxAge)
+  const refreshTokenCookie = generateCookie(REFRESH_TOKEN_NAME, refreshToken, AUTH_OPTIONS.refreshTokenMaxAge)
   cookies.set(...accessTokenCookie)
   cookies.set(...refreshTokenCookie)
 
@@ -123,7 +135,7 @@ function processRefresh (request, response, body) {
 
 function processProtected (request, response, body) {
   const cookies = new Cookies(request, response)
-  const accessToken = cookies.get(AUTH_OPTIONS.accessTokenName)
+  const accessToken = cookies.get(ACCESS_TOKEN_NAME)
 
   try {
     authTokens.verifyAccessToken(accessToken)
