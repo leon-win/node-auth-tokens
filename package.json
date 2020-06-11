@@ -1,6 +1,6 @@
 {
   "name": "auth-tokens",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Auth library for Node.js applications based on access and refresh tokens approach",
   "keywords": [
     "auth token",
@@ -26,12 +26,12 @@
     "jose": "^1.12.1"
   },
   "devDependencies": {
-    "codecov": "^3.6.1",
+    "codecov": "^3.7.0",
     "cookies": "^0.8.0",
     "node-dev": "^4.0.0",
-    "rewiremock": "^3.13.9",
-    "standard": "^14.3.1",
-    "tap": "^14.9.2"
+    "rewiremock": "^3.14.2",
+    "standard": "^14.3.4",
+    "tap": "^14.10.7"
   },
   "repository": {
     "type": "git",
