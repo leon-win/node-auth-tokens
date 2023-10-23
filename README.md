@@ -1,9 +1,8 @@
 # node-auth-tokens
 
-[![Build Status](https://img.shields.io/travis/leon-win/node-auth-tokens?style=flat-square)](https://travis-ci.org/leon-win/node-auth-tokens)
-[![codecov](https://img.shields.io/codecov/c/github/leon-win/node-auth-tokens?style=flat-square)](https://codecov.io/gh/leon-win/node-auth-tokens)
-[![npm](https://img.shields.io/npm/v/auth-tokens?style=flat-square)](https://www.npmjs.com/package/auth-tokens)
-[![JavaScript Standard Style](https://img.shields.io/badge/code_style-standard-brightgreen.svg?style=flat-square)](https://standardjs.com)
+[![npm](https://img.shields.io/npm/v/auth-tokens?logo=npm&style=flat-square)](https://www.npmjs.com/package/auth-tokens)
+[![Code test coverage](https://img.shields.io/codecov/c/github/leon-win/node-auth-tokens?style=flat-square)](https://codecov.io/gh/leon-win/node-auth-tokens)
+[![Code style: Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?logo=prettier&style=flat-square)](https://prettier.io)
 [![License: MIT](https://img.shields.io/github/license/leon-win/node-auth-tokens?style=flat-square)](http://opensource.org/licenses/MIT)
 
 Auth library for Node.js applications based on access and refresh tokens approach
