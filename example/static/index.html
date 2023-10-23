@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <link href="./app.css" rel="stylesheet">
+    <meta charset="utf-8" />
+    <link href="./app.css" rel="stylesheet" />
     <title>node-auth-tokens example</title>
   </head>
 
@@ -10,16 +10,12 @@
     <h1>node-auth-tokens example</h1>
 
     <div class="field">
-      <input
-        id="username"
-        placeholder="Username" />
+      <input id="username" placeholder="Username" />
       <div>Use <kbd>username1</kbd> or <kbd>username2</kbd></div>
     </div>
 
     <div class="field">
-      <input
-        id="password"
-        placeholder="Password" />
+      <input id="password" placeholder="Password" />
       <div>Use <kbd>password1</kbd> or <kbd>password2</kbd></div>
     </div>
 
@@ -29,7 +25,9 @@
 
     <button class="field" onclick="refreshTokens()">Refresh tokens</button>
 
-    <button class="field" onclick="getProtectedData()">Get protected data</button>
+    <button class="field" onclick="getProtectedData()">
+      Get protected data
+    </button>
 
     <textarea class="field" id="log"></textarea>
 

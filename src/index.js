@@ -1,164 +1,151 @@
-const crypto = require('crypto')
-const { JWK, JWT, JWE } = require('jose')
+const crypto = require("crypto");
+const { JWK, JWT, JWE } = require("jose");
 
-const MemoryStorage = require('./storage/MemoryStorage')
-const RedisStorage = require('./storage/RedisStorage')
-const DEFAULT_OPTIONS = require('./defaultOptions')
+const MemoryStorage = require("./storage/MemoryStorage");
+const RedisStorage = require("./storage/RedisStorage");
+const DEFAULT_OPTIONS = require("./defaultOptions");
 
 const getRandomToken = (size) => {
-  return crypto
-    .randomBytes(size)
-    .toString('hex')
-}
+  return crypto.randomBytes(size).toString("hex");
+};
 
 class AuthTokens {
-  constructor (options = {}) {
+  constructor(options = {}) {
     this.options = {
       ...DEFAULT_OPTIONS,
-      ...options
-    }
+      ...options,
+    };
 
     if (options.redis) {
       this.storage = new RedisStorage(
         options.redis,
-        this.options.refreshTokenMaxAge / 1000
-      )
+        this.options.refreshTokenMaxAge / 1000,
+      );
     } else {
-      this.storage = new MemoryStorage()
+      this.storage = new MemoryStorage();
     }
 
     this.signKey = JWK.asKey({
-      kty: 'oct',
-      use: 'sig',
-      k: this.options.signSecret
-    })
+      kty: "oct",
+      use: "sig",
+      k: this.options.signSecret,
+    });
 
     this.encodeKey = JWK.asKey({
-      kty: 'oct',
-      use: 'enc',
-      k: this.options.encodeSecret
-    })
+      kty: "oct",
+      use: "enc",
+      k: this.options.encodeSecret,
+    });
   }
 
-  setTokens (userId) {
-    const accessTokenExpiresIn = Date.now() + this.options.accessTokenMaxAge
-    const csrfToken = getRandomToken(this.options.randomBytesSize)
-    const refreshTokenValue = getRandomToken(this.options.randomBytesSize)
+  setTokens(userId) {
+    const accessTokenExpiresIn = Date.now() + this.options.accessTokenMaxAge;
+    const csrfToken = getRandomToken(this.options.randomBytesSize);
+    const refreshTokenValue = getRandomToken(this.options.randomBytesSize);
 
     const accessToken = JWE.encrypt(
       JWT.sign(
         {
           userId,
-          exp: accessTokenExpiresIn
+          exp: accessTokenExpiresIn,
         },
-        this.signKey
+        this.signKey,
       ),
-      this.encodeKey
-    )
+      this.encodeKey,
+    );
     const refreshToken = JWE.encrypt(
       JWT.sign(
         {
           userId,
           value: refreshTokenValue,
-          csrfToken
+          csrfToken,
         },
-        this.signKey
+        this.signKey,
       ),
-      this.encodeKey
-    )
+      this.encodeKey,
+    );
 
-    this.storage.setRefreshToken(
-      userId,
-      refreshTokenValue,
-      csrfToken
-    )
+    this.storage.setRefreshToken(userId, refreshTokenValue, csrfToken);
 
     return {
       accessToken,
       accessTokenExpiresIn,
-      refreshToken
-    }
+      refreshToken,
+    };
   }
 
-  refreshTokens (currentRefreshToken) {
-    const refreshTokenData = this.verifyRefreshToken(currentRefreshToken)
-    const accessTokenExpiresIn = Date.now() + this.options.accessTokenMaxAge
-    const csrfToken = getRandomToken(this.options.randomBytesSize)
+  refreshTokens(currentRefreshToken) {
+    const refreshTokenData = this.verifyRefreshToken(currentRefreshToken);
+    const accessTokenExpiresIn = Date.now() + this.options.accessTokenMaxAge;
+    const csrfToken = getRandomToken(this.options.randomBytesSize);
 
     const accessToken = JWE.encrypt(
       JWT.sign(
         {
           userId: refreshTokenData.userId,
-          exp: accessTokenExpiresIn
+          exp: accessTokenExpiresIn,
         },
-        this.signKey
+        this.signKey,
       ),
-      this.encodeKey
-    )
+      this.encodeKey,
+    );
     const refreshToken = JWE.encrypt(
       JWT.sign(
         {
           userId: refreshTokenData.userId,
           value: refreshTokenData.value,
-          csrfToken
+          csrfToken,
         },
-        this.signKey
+        this.signKey,
       ),
-      this.encodeKey
-    )
+      this.encodeKey,
+    );
 
-    this.storage.updateCsrfToken(
-      refreshTokenData.userId,
-      csrfToken
-    )
+    this.storage.updateCsrfToken(refreshTokenData.userId, csrfToken);
 
     return {
       accessToken,
       accessTokenExpiresIn,
-      refreshToken
-    }
+      refreshToken,
+    };
   }
 
-  verifyToken (token) {
-    const decryptedToken = JWE.decrypt(
-      token,
-      this.encodeKey
-    )
+  verifyToken(token) {
+    const decryptedToken = JWE.decrypt(token, this.encodeKey);
 
-    return JWT.verify(
-      decryptedToken.toString(),
-      this.signKey
-    )
+    return JWT.verify(decryptedToken.toString(), this.signKey);
   }
 
-  verifyAccessToken (accessToken) {
-    return this.verifyToken(accessToken)
+  verifyAccessToken(accessToken) {
+    return this.verifyToken(accessToken);
   }
 
-  verifyRefreshToken (refreshToken) {
-    const refreshTokenData = this.verifyToken(refreshToken)
-    const savedRefreshToken = this.storage.getRefreshToken(refreshTokenData.userId)
+  verifyRefreshToken(refreshToken) {
+    const refreshTokenData = this.verifyToken(refreshToken);
+    const savedRefreshToken = this.storage.getRefreshToken(
+      refreshTokenData.userId,
+    );
 
     if (!savedRefreshToken) {
-      throw new Error('Refresh token not found')
+      throw new Error("Refresh token not found");
     }
 
     if (savedRefreshToken.refreshToken !== refreshTokenData.value) {
-      throw new Error('Refresh token is invalid')
+      throw new Error("Refresh token is invalid");
     }
 
     if (savedRefreshToken.csrfToken !== refreshTokenData.csrfToken) {
-      throw new Error('CSRF token is invalid')
+      throw new Error("CSRF token is invalid");
     }
 
-    return refreshTokenData
+    return refreshTokenData;
   }
 
-  deleteRefreshToken (refreshToken) {
-    const refreshTokenData = this.verifyToken(refreshToken)
+  deleteRefreshToken(refreshToken) {
+    const refreshTokenData = this.verifyToken(refreshToken);
 
-    return this.storage.deleteRefreshToken(refreshTokenData.userId)
+    return this.storage.deleteRefreshToken(refreshTokenData.userId);
   }
 }
 
-module.exports = AuthTokens
+module.exports = AuthTokens;
