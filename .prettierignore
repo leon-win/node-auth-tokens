@@ -1,12 +1,12 @@
 # Node modules
 node_modules
 
+# Reports
+.tap
+
 # Log files
 npm-debug.log*
 
 # Editor files
 .vscode
 
-# Coverage reports
-.nyc_output
-coverage
