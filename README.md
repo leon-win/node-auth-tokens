@@ -1,7 +1,7 @@
 # node-auth-tokens
 
 [![npm](https://img.shields.io/npm/v/auth-tokens?logo=npm&style=flat-square)](https://www.npmjs.com/package/auth-tokens)
-[![Code test coverage](https://img.shields.io/codecov/c/github/leon-win/node-auth-tokens?style=flat-square)](https://codecov.io/gh/leon-win/node-auth-tokens)
+[![Code coverage](https://img.shields.io/codecov/c/github/leon-win/node-auth-tokens?logo=codecov&style=flat-square)](https://codecov.io/gh/leon-win/node-auth-tokens)
 [![Code style: Prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?logo=prettier&style=flat-square)](https://prettier.io)
 [![License: MIT](https://img.shields.io/github/license/leon-win/node-auth-tokens?style=flat-square)](http://opensource.org/licenses/MIT)
 
