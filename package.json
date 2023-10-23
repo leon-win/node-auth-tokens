@@ -1,6 +1,6 @@
 {
   "name": "auth-tokens",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Auth library for Node.js applications based on access and refresh tokens approach",
   "keywords": [
     "auth token",
@@ -12,7 +12,7 @@
   "author": "Leonid Vinogradov <win.leon@pm.me>",
   "license": "MIT",
   "engines": {
-    "node": ">=9"
+    "node": ">=10.13.0 < 13 || >=13.7.0"
   },
   "main": "src/index.js",
   "scripts": {
