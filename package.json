@@ -29,7 +29,7 @@
   "devDependencies": {
     "codecov": "^3.7.0",
     "cookies": "^0.8.0",
-    "node-dev": "^4.0.0",
+    "node-dev": "^8.0.0",
     "prettier": "^3.0.3",
     "rewiremock": "^3.14.5",
     "tap": "^18.5.2"
