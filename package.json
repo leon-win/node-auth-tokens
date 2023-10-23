@@ -24,7 +24,7 @@
     "example": "node-dev ./example/server.js"
   },
   "dependencies": {
-    "jose": "^1.12.1"
+    "jose": "^2.0.6"
   },
   "devDependencies": {
     "codecov": "^3.7.0",
