@@ -8,13 +8,20 @@ button,
 textarea {
   box-sizing: border-box;
   width: 20rem;
-  margin-bottom: 1rem;
   padding: 0.5rem;
   font-size: 1rem;
+}
+
+input {
+  margin-bottom: 0.5rem;
 }
 
 textarea {
   height: 20rem;
   resize: vertical;
   font-size: 0.75rem;
+}
+
+.field {
+  margin-bottom: 1rem;
 }

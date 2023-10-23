@@ -9,23 +9,29 @@
   <body>
     <h1>node-auth-tokens example</h1>
 
-    <input
-      id="username"
-      placeholder="Username" />
+    <div class="field">
+      <input
+        id="username"
+        placeholder="Username" />
+      <div>Use <kbd>username1</kbd> or <kbd>username2</kbd></div>
+    </div>
 
-    <input
-      id="password"
-      placeholder="Password" />
+    <div class="field">
+      <input
+        id="password"
+        placeholder="Password" />
+      <div>Use <kbd>password1</kbd> or <kbd>password2</kbd></div>
+    </div>
 
-    <button onclick="login()">Log in</button>
+    <button class="field" onclick="login()">Log in</button>
 
-    <button onclick="logout()">Log out</button>
+    <button class="field" onclick="logout()">Log out</button>
 
-    <button onclick="refreshTokens()">Refresh tokens</button>
+    <button class="field" onclick="refreshTokens()">Refresh tokens</button>
 
-    <button onclick="getProtectedData()">Get protected data</button>
+    <button class="field" onclick="getProtectedData()">Get protected data</button>
 
-    <textarea id="log"></textarea>
+    <textarea class="field" id="log"></textarea>
 
     <script src="./app.js" lang="javascript"></script>
   </body>
