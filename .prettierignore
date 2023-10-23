@@ -1,0 +1,12 @@
+# Node modules
+node_modules
+
+# Log files
+npm-debug.log*
+
+# Editor files
+.vscode
+
+# Coverage reports
+.nyc_output
+coverage
